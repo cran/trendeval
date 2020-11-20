@@ -1,0 +1,12 @@
+7dfcfeb1d0c5735b58a8fded8383566e *DESCRIPTION
+1d213504561bd4581d41c2c84dcb6838 *LICENSE
+3e5ea605308fba9e9f8962c776310160 *NAMESPACE
+f18911d32fb7373cc3179db030558c20 *R/model-evaluation.R
+07bbfa0fad799c7de6e34995aafd813e *R/utils.r
+4f4267256a868eff7c6d631cd207a6d0 *README.md
+7dc26c52fefc2f17c916427882034055 *man/evaluate_models.Rd
+8f7ab6533b0c94cf0c486aa14699a663 *man/figures/README-unnamed-chunk-3-1.png
+8f7ab6533b0c94cf0c486aa14699a663 *man/figures/README-unnamed-chunk-4-1.png
+310ad2de9f8c3107930132f193ee0587 *tests/testthat.R
+86c078265c7f8b3a7df39d7e10def090 *tests/testthat/test-evaluate_aic.R
+43138efed9343bd26d95bd93324b5005 *tests/testthat/test-evaluate_models.R
