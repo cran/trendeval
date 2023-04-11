@@ -3,36 +3,25 @@
 
 <!-- badges: start -->
 
-[![Project Status: WIP – Initial development is in progress, but there
-has not yet been a stable, usable release suitable for the
-public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
-[![Lifecycle:
-experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/trendeval)](https://CRAN.R-project.org/package=trendeval)
 [![Codecov test
-coverage](https://codecov.io/gh/reconhub/trendeval/branch/master/graph/badge.svg)](https://codecov.io/gh/reconhub/trendeval?branch=master)
-[![R build
-status](https://github.com/reconhub/trendeval/workflows/R-CMD-check/badge.svg)](https://github.com/reconhub/trendeval/actions)
+coverage](https://app.codecov.io/gh/reconverse/trendeval/branch/master/graph/badge.svg)](https://app.codecov.io/gh/reconverse/trendeval?branch=master)
+[![R-CMD-check](https://github.com/reconverse/trendeval/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/reconverse/trendeval/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
-
-<br> **<span style="color: red;">Disclaimer</span>**
-
-This package is a work in progress. Please reach out to the authors
-before using.
 
 # Trendeval
 
 *trendeval* aims to provide a coherent interface for evaluating models
-fit with the [trending](https://github.com/reconhub/trending) package.
+fit with the [trending](https://github.com/reconverse/trending) package.
 Whilst it is useful in an interactive context, it’s main focus is to
 provide an intuitive interface on which other packages can be developed
 (e.g. [*trendbreaker*](https://github.com/reconhub/trendbreaker)).
 
 ## Installing the package
 
-Once it is released on [CRAN](https://CRAN.R-project.org), you will be
-able to install the stable version of the package with:
+You can install the stable version of this package from
+[CRAN](https://CRAN.R-project.org) with:
 
 ``` r
 install.packages("trendeval")
@@ -45,7 +34,7 @@ The development version can be installed from
 if (!require(remotes)) {
   install.packages("remotes")
 }
-remotes::install_github("reconhub/trendeval", build_vignettes = TRUE)
+remotes::install_github("reconverse/trendeval", build_vignettes = TRUE)
 ```
 
 ## Model selection example
@@ -88,26 +77,23 @@ dat <-
 fitting_data <- dat[[2]]
 pred_data <- select(dat[[1]], date, day, weekday)
 
-# assess the models using the evaluate_resampling and a variety of metrics
-results <- evaluate_models(
-  models,
-  fitting_data, 
-  method = evaluate_resampling,
-  metrics = list(yardstick::rmse, yardstick::huber_loss, yardstick::mae)
-)
-
+# assess the models using the evaluate_resampling
+results <- 
+  models %>% 
+  evaluate_resampling(fitting_data, metric = "rmse") %>% 
+  summary
 results
-#> # A tibble: 8 x 8
-#>   model_name       model    data        warning   error   huber_loss   mae  rmse
-#>   <chr>            <named > <list>      <named l> <named>      <dbl> <dbl> <dbl>
-#> 1 simple           <trndng… <tibble [4… <NULL>    <NULL>       6902. 6903. 6903.
-#> 2 glm_poisson      <trndng… <tibble [4… <NULL>    <NULL>       5193. 5193. 5193.
-#> 3 glm_poisson_wee… <trndng… <tibble [4… <NULL>    <NULL>       5166. 5166. 5166.
-#> 4 glm_quasipoisson <trndng… <tibble [4… <NULL>    <NULL>       5193. 5193. 5193.
-#> 5 glm_quasipoisso… <trndng… <tibble [4… <NULL>    <NULL>       5166. 5166. 5166.
-#> 6 glm_negbin       <trndng… <tibble [4… <NULL>    <NULL>       5238. 5238. 5238.
-#> 7 glm_negbin_week… <trndng… <tibble [4… <NULL>    <NULL>       5223. 5224. 5224.
-#> 8 will_error       <trndng… <tibble [4… <NULL>    <chr […        NA    NA    NA
+#> # A tibble: 8 × 5
+#>   model_name               metric value splits_averaged nas_removed
+#>   <chr>                    <chr>  <dbl>           <dbl>       <dbl>
+#> 1 glm_negbin               rmse   5238.              43           0
+#> 2 glm_negbin_weekday       rmse   5224.              43           0
+#> 3 glm_poisson              rmse   5193.              43           0
+#> 4 glm_poisson_weekday      rmse   5166.              43           0
+#> 5 glm_quasipoisson         rmse   5193.              43           0
+#> 6 glm_quasipoisson_weekday rmse   5166.              43           0
+#> 7 simple                   rmse   6903.              43           0
+#> 8 will_error               rmse    NaN               43          43
 ```
 
 ### Example of how this output could then be used
@@ -119,28 +105,11 @@ library(ggplot2)    # for plotting
 
 # Pull out the model with the lowest RMSE
 best_by_rmse <- 
-    results %>% 
-    filter(map_lgl(warning, is.null)) %>%  # remove models that gave warnings
-    filter(map_lgl(error, is.null))  %>%   # remove models that errored
-    slice_min(rmse) %>% 
-    select(model) %>% 
-    pluck(1,1)
-
-best_by_rmse
-#> $model_class
-#> [1] "glm"
-#> 
-#> $fit
-#> function (data) 
-#> {
-#>     model <- glm(formula = count ~ day + weekday, family = "quasipoisson", 
-#>         data = data, ...)
-#>     model_fit(model, data)
-#> }
-#> <environment: 0x55647c335350>
-#> 
-#> attr(,"class")
-#> [1] "trending_glm"   "trending_model"
+  results %>% 
+  slice_min(value) %>% 
+  select(model_name) %>% 
+  pluck(1,1) %>% 
+  pluck(models, .)
 
 # Now let's look at the following 14 days as well
 new_dat <-
@@ -155,10 +124,10 @@ out <-
   best_by_rmse %>%  
   fit(pathways_recent) %>% 
   predict(all_dat) %>%  
-  as_tibble()
-
+  pluck(1) %>% 
+  .subset2(1L)
 out
-#> # A tibble: 71 x 9
+#> <trending_prediction> 71 x 9
 #>    date         day weekday   count estimate lower_ci upper_ci lower_pi upper_pi
 #>    <date>     <int> <fct>     <int>    <dbl>    <dbl>    <dbl>    <dbl>    <dbl>
 #>  1 2020-04-02    15 rest_of_… 71917   58301.   53120.   63988.    40268    79935
@@ -171,7 +140,7 @@ out
 #>  8 2020-04-09    22 rest_of_… 40797   45540.   42108.   49253.    30765    63346
 #>  9 2020-04-10    23 rest_of_… 33946   43961.   40718.   47463.    29580    61313
 #> 10 2020-04-11    24 weekend   32269   36796.   33092.   40916.    23141    53834
-#> # … with 61 more rows
+#> # ℹ 61 more rows
 
 # plot output
 ggplot(out, aes(x = date, y = count)) +
@@ -191,7 +160,7 @@ ggplot(out, aes(x = date, y = count)) +
 ## Getting help online
 
 Bug reports and feature requests should be posted on *github* using the
-[*issue* system](https://github.com/reconhub/trendeval/issues). All
+[*issue* system](https://github.com/reconverse/trendeval/issues). All
 other questions should be posted on the **RECON** slack channel see
 <https://www.repidemicsconsortium.org/forum/> for details on how to
 join.
