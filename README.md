@@ -1,12 +1,11 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
 <!-- badges: start -->
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/trendeval)](https://CRAN.R-project.org/package=trendeval)
 [![Codecov test
-coverage](https://app.codecov.io/gh/reconverse/trendeval/branch/master/graph/badge.svg)](https://app.codecov.io/gh/reconverse/trendeval?branch=master)
+coverage](https://codecov.io/gh/reconverse/trendeval/branch/master/graph/badge.svg)](https://app.codecov.io/gh/reconverse/trendeval?branch=master)
 [![R-CMD-check](https://github.com/reconverse/trendeval/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/reconverse/trendeval/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
@@ -42,7 +41,9 @@ remotes::install_github("reconverse/trendeval", build_vignettes = TRUE)
 ``` r
 library(dplyr)      # for data manipulation
 library(outbreaks)  # for data
+#> Warning: package 'outbreaks' was built under R version 4.4.3
 library(trending)   # for trend fitting
+#> Warning: package 'trending' was built under R version 4.4.3
 library(trendeval)  # for model selection
 
 # load data
@@ -86,14 +87,14 @@ results
 #> # A tibble: 8 × 5
 #>   model_name               metric value splits_averaged nas_removed
 #>   <chr>                    <chr>  <dbl>           <dbl>       <dbl>
-#> 1 glm_negbin               rmse   5238.              43           0
-#> 2 glm_negbin_weekday       rmse   5224.              43           0
-#> 3 glm_poisson              rmse   5193.              43           0
-#> 4 glm_poisson_weekday      rmse   5166.              43           0
-#> 5 glm_quasipoisson         rmse   5193.              43           0
-#> 6 glm_quasipoisson_weekday rmse   5166.              43           0
-#> 7 simple                   rmse   6903.              43           0
-#> 8 will_error               rmse    NaN               43          43
+#> 1 glm_negbin               rmse   7159.               5           0
+#> 2 glm_negbin_weekday       rmse   6348.               5           0
+#> 3 glm_poisson              rmse   7224.               5           0
+#> 4 glm_poisson_weekday      rmse   6981.               5           0
+#> 5 glm_quasipoisson         rmse   6819.               5           0
+#> 6 glm_quasipoisson_weekday rmse   5924.               5           0
+#> 7 simple                   rmse   9064.               5           0
+#> 8 will_error               rmse    NaN                5           5
 ```
 
 ### Example of how this output could then be used
@@ -102,6 +103,7 @@ results
 library(tidyr)      # for data manipulation
 library(purrr)      # for data manipulation
 library(ggplot2)    # for plotting
+#> Warning: package 'ggplot2' was built under R version 4.4.3
 
 # Pull out the model with the lowest RMSE
 best_by_rmse <- 
